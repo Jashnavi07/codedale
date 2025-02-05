@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Form System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            width: 40%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px gray;
+        }
+        input, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid gray;
+        }
+        button {
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        async function register() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (!name || !email || !password) {
+                alert("All fields are required!");
+                return;
+            }
+
+            const response = await fetch('http://localhost:5500/register.html', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                alert("All fields are required!");
+                return;
+            }
+
+            const response = await fetch('http://localhost:5500/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            if (data.access_token) {
+                localStorage.setItem('token', data.access_token);
+                alert('Login Successful');
+                window.location.href = 'details.html';
+            } else {
+                alert('Login Failed');
+            }
+        }
+    </script>
+</head>
+<body>
+    <form id="reg-form">
+        <div class="container">
+            <pre id="reg-response"></pre>
+            <h2>User Registration</h2>
+            <input type="text" id="reg-name" placeholder="Name"><br>
+            <input type="email" id="reg-email" placeholder="Email"><br>
+            <input type="password" id="reg-password" placeholder="Password"><br>
+            <!-- <button onclick="register()">Register</button> -->
+            <button type="submit">Register</button>
+        </div>
+    </form>
+
+    <form id="login-form">
+
+        <div class="container" style="margin-top: 5rem;">
+            <pre id="login-response"></pre>
+            <h2>User Login</h2>
+            <input type="email" id="login-email" placeholder="Email"><br>
+            <input type="password" id="login-password" placeholder="Password"><br>
+            <!-- <button onclick="login()">Login</button> -->
+            <button type="submit">Login</button>
+        </div>
+    </form>
+    <script>
+        function handlePostRequest(data) {
+            console.log("Recieved data:", data);
+
+            return {
+                status: "success",
+                message: "Login successful!"
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+
+            const response = handlePostRequest(data);
+
+            document.getElementById("login-response").textContent = "Logged in Successfully";
+        });
+
+        document.getElementById('reg-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+
+            const response = handlePostRequest(data);
+
+            document.getElementById("reg-response").textContent = "Registered Successfully";
+        });
+    </script>
+</body>
+</html>
